@@ -4,6 +4,15 @@
 #define STACK_INIT_SIZE 32
 
 typedef struct {
+
+} Node;
+
+typedef struct {
+  Node * nodes;
+  
+} Graph;
+
+typedef struct {
   char * data;
   size_t capacity;
   size_t count;
