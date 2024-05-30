@@ -1,3 +1,6 @@
+#ifndef STACK_H_
+#define  STACK_H_
+
 #define STACK_INIT_SIZE 16
 
 typedef struct {
@@ -26,6 +29,10 @@ char pop_stack(Stack * s){
   return s->data[--s->count];
 }
 
+char get_top_from_stack(Stack * s){
+  return s->data[s->count - 1];
+}
+
 int is_empty_stack(Stack * s){
   return !s->count;
 }
@@ -34,3 +41,5 @@ void free_stack(Stack * s){
   free(s->data);
   free(s);
 }
+
+#endif
