@@ -38,7 +38,7 @@ int main(){
     char input_buff[500];
     scanf("%s", input_buff);
     if(input_buff[0] == '*') break;
-    printf("%s: %s\n", is_word_in_lang(lang, input_buff) ? "sim" : "nao");
+    printf("%s: %s\n", input_buff, is_word_in_lang(lang, input_buff) ? "sim" : "nao");
   }
   
   free_pda(lang);

@@ -2,10 +2,12 @@
 #define PDA_H_
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "mystring.h"
 #include "stack.h"
 
+#define NODE_SUBNODE_ARRAY_INIT_SIZE STRING_INIT_SIZE
 
 typedef struct {
   char consume;
@@ -19,11 +21,44 @@ typedef struct {
 } Graph;
 
 typedef struct {
+  size_t state;
+  String * current_word;
+  String * current_stack;
+} Computation;
+
+/* typedef struct Node{ */
+/*   Computation c; */
+/*   Node ** sub_nodes; */
+/*   size_t num_of_nodes; */
+/*   size_t capacity; */
+/* } Node; */
+
+typedef struct {
   Stack * stack;
   Graph states;
   size_t num_of_states;
-  
+  //  Node * history;
 } PDA;
+
+/* Node *new_node() { */
+/*   Node * n = (Node*) malloc(sizeof(Node)); */
+/*   n->num_of_nodes = 0; */
+/*   n->sub_nodes = NULL; */
+/*   n->c = {0}; */
+/*   n->capacity = 0; */
+/*   return n; */
+/* } */
+
+/* void add_computation_to_node(Node* tree, Computation new_computation){ */
+/*   if(tree->num_of_nodes >= tree->capacity){ */
+/*     tree->capacity += NODE_SUBNODE_ARRAY_INIT_SIZE; */
+/*     tree->sub_nodes = (Node**) realloc(tree->sub_nodes, tree->capacity * sizeof(Node*)); */
+/*   } */
+/*   Node * n = new_node(); */
+/*   n->c = new_computation; */
+/*   tree->sub_nodes[tree->num_of_nodes++] = n; */
+/* } */
+
 
 PDA * new_pda(size_t number_of_states){
   size_t Q = number_of_states;
@@ -57,24 +92,20 @@ void free_pda(PDA * pda){
   free(pda);
 }
 
-int is_word_in_lang(PDA * pda, char * word){
+bool is_word_in_lang(PDA * pda, char * word){
   size_t current_letter_index = 0, current_state = 0;
+
+  
   
   for(size_t i = 0; i < pda->num_of_states; ++i){
     char to_consume = pda->states.transitions[current_state][i].consume;
     char to_unstack = pda->states.transitions[current_state][i].unstack;
     char current_stack_top = get_top_from_stack(pda->stack);
 
-    bool should_transition = true
     
-    if(to_consume == '&'){
-      if(
-    }
     
-    if(to_consume == word[current_letter_index] && to_unstack == current_stack_top){
-      
-    }
   }
+  return false;
 }
 
 #endif

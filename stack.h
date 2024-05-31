@@ -1,6 +1,8 @@
 #ifndef STACK_H_
 #define  STACK_H_
 
+#include <stdlib.h>
+
 #define STACK_INIT_SIZE 16
 
 typedef struct {
@@ -10,17 +12,17 @@ typedef struct {
 } Stack;
 
 Stack * new_stack(){
-  Stack * new = malloc(sizeof(Stack));
-  new->capacity = 0;
-  new->count = 0;
-  new->data = NULL;
-  return new;
+  Stack * newstack = (Stack*)malloc(sizeof(Stack));
+  newstack->capacity = 0;
+  newstack->count = 0;
+  newstack->data = NULL;
+  return newstack;
 }
 
 void push_stack(Stack * s, char value){
   if(s->count >= s->capacity){
     s->capacity += STACK_INIT_SIZE;
-    s->data = realloc(s->data, s->capacity * sizeof(s->data[0]));
+    s->data = (char*)realloc(s->data, s->capacity * sizeof(s->data[0]));
   }
   s->data[s->count++]= value;
 }

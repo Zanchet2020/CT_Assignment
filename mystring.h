@@ -1,6 +1,8 @@
 #ifndef MYSTRING_H_
 #define  MYSTRING_H_
 
+#include <stdlib.h>
+
 #define STRING_INIT_SIZE 10
 
 typedef struct {
@@ -21,7 +23,7 @@ void append_to_string(String* str, char * txt){
   for(size_t i = 0; txt[i] != '\0'; ++i){
     if(str->count >= str->capacity){
       str->capacity += STRING_INIT_SIZE;
-      str->text = realloc(str->text, str->capacity * sizeof(char));
+      str->text = (char*)realloc(str->text, str->capacity * sizeof(char));
     }
     str->text[i + str->count] = txt[i];
     str->count++;
