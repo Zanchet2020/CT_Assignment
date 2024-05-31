@@ -34,14 +34,23 @@ int main(){
     lang->states.is_final_state[index] = true;
   }
 
+  Comp_Stack * cs = new_computation_stack();
   while(true){
     char input_buff[500];
     scanf("%s", input_buff);
     if(input_buff[0] == '*') break;
-    printf("%s: %s\n", input_buff, is_word_in_lang(lang, input_buff) ? "sim" : "nao");
+
+    if(is_word_in_lang(lang, input_buff, 0, cs)){
+      printf("%s: sim\n", input_buff);
+      for(size_t i = 0; !is_computation_stack_empty(cs); ++i){
+	printf("(q%d, %s, %s) |-\n", cs->c[i].state, cs->c[i].current_word, cs->c[i].current_stack);
+      }
+    }
   }
+
+  
   
   free_pda(lang);
-  printf("Hello\n");
+  //  printf("Hello\n");
   return 0;
 }
