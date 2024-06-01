@@ -59,7 +59,7 @@ String *get_string_from_stack(Stack *s) {
 }
 
 void push_string_to_stack(Stack * s, String * str) {
-  for(size_t i = str->count - 1; i >= 0; --i){
+  for(int i = str->count - 1; i >= 0; --i){
     push_stack(s, str->text[i]);
   }
 }

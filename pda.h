@@ -130,9 +130,9 @@ void free_pda(PDA * pda){
 
 bool is_word_in_lang(PDA * pda, char * word, size_t state, Comp_Stack * cs){
   size_t value =
-    ((uint8_t)(word[0] == '\0') << 0) +
+    ((uint8_t)(word[0] == '\0') << 2) +
     ((uint8_t)(pda->states.is_final_state[state]) << 1) + 
-    ((uint8_t)(is_empty_stack(pda->stack)) << 2);
+    ((uint8_t)(is_empty_stack(pda->stack)) << 0);
 
   // 111 (7) -> word is in language                                -> return true and save computation
   // 110 (6) -> word empty but stack isn't empty                   -> false and don't save computation
@@ -145,6 +145,8 @@ bool is_word_in_lang(PDA * pda, char * word, size_t state, Comp_Stack * cs){
   switch(value){
   case 7:{
     Computation c;
+    c.current_word = new_string();
+    c.current_stack = new_string();
     c.state = state;
     append_to_string(c.current_word, word);
     c.current_stack = get_string_from_stack(pda->stack);

@@ -36,19 +36,19 @@ int main(){
 
   Comp_Stack * cs = new_computation_stack();
   while(true){
-    char input_buff[500];
+    char input_buff[1000];
     scanf("%s", input_buff);
     if(input_buff[0] == '*') break;
-
     if(is_word_in_lang(lang, input_buff, 0, cs)){
       printf("%s: sim\n", input_buff);
       for(size_t i = 0; !is_computation_stack_empty(cs); ++i){
-	printf("(q%d, %s, %s) |-\n", cs->c[i].state, cs->c[i].current_word, cs->c[i].current_stack);
+	printf("(q%zu, %s, %s) |-\n", cs->c[i].state, cs->c[i].current_word->text, cs->c[i].current_stack->text);
       }
+    } else {
+      printf("%s: nao\n", input_buff);
+      while(!is_computation_stack_empty(cs)) pop_computation_stack(cs);
     }
-  }
-
-  
+  }  
   
   free_pda(lang);
   //  printf("Hello\n");
