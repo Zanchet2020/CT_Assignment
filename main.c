@@ -22,8 +22,9 @@ int main(){
       .unstack = unstack,
       .stack = new_string()
     };
-    append_to_string(t.stack, stack);
-    lang->states.transitions[from_state][to_state] = t;
+    if(stack[0] != '&')
+      append_to_string(t.stack, stack);
+    push_transition_array(lang->states.transitions[from_state][to_state], t);
   }
 
   size_t num_of_final_states = 0;
@@ -42,14 +43,22 @@ int main(){
     if(is_word_in_lang(lang, input_buff, 0, cs)){
       printf("%s: sim\n", input_buff);
       for(size_t i = 0; !is_computation_stack_empty(cs); ++i){
-	printf("(q%zu, %s, %s) |-\n", cs->c[i].state, cs->c[i].current_word->text, cs->c[i].current_stack->text);
+	Computation c = pop_computation_stack(cs);
+        printf("(q%zu, %s, %s) |-\n", c.state, c.current_word->text, c.current_stack->text);
+	free_string(c.current_word);
+	free_string(c.current_stack);
       }
     } else {
       printf("%s: nao\n", input_buff);
-      while(!is_computation_stack_empty(cs)) pop_computation_stack(cs);
+      while(!is_computation_stack_empty(cs)){
+	Computation c = pop_computation_stack(cs);
+	free_string(c.current_word);
+	free_string(c.current_stack);
+      }
     }
+    clear_stack(lang->stack);
   }  
-  
+  free_computation_stack(cs);
   free_pda(lang);
   //  printf("Hello\n");
   return 0;

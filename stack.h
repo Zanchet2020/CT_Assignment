@@ -13,7 +13,7 @@ typedef struct {
   size_t count;
 } Stack;
 
-void push_stack(Stack * s, char value){
+void push_stack(Stack * s, const char value){
   if(s->count >= s->capacity){
     s->capacity += STACK_INIT_SIZE;
     s->data = (char*)realloc(s->data, s->capacity * sizeof(s->data[0]));
@@ -26,7 +26,7 @@ Stack * new_stack(){
   newstack->capacity = 0;
   newstack->count = 0;
   newstack->data = NULL;
-  push_stack(newstack, 'Z');
+  //push_stack(newstack, 'Z');
   return newstack;
 }
 
@@ -34,11 +34,11 @@ char pop_stack(Stack * s){
   return s->data[--s->count];
 }
 
-char get_top_from_stack(Stack * s){
+char get_top_from_stack(const Stack * s){
   return s->data[s->count - 1];
 }
 
-bool is_empty_stack(Stack * s){
+bool is_empty_stack(const Stack * s){
   return get_top_from_stack(s) == 'Z';
 }
 
@@ -47,7 +47,7 @@ void free_stack(Stack * s){
   free(s);
 }
 
-String *get_string_from_stack(Stack *s) {
+String *get_string_from_stack(const Stack *s) {
   String * str = new_string();
   for(size_t i =0; i < s->count; ++i){
     char c[2];
@@ -58,9 +58,15 @@ String *get_string_from_stack(Stack *s) {
   return str;
 }
 
-void push_string_to_stack(Stack * s, String * str) {
+void push_string_to_stack(Stack * s, const String * str) {
   for(int i = str->count - 1; i >= 0; --i){
     push_stack(s, str->text[i]);
+  }
+}
+
+void clear_stack(Stack * s){
+  while(!is_empty_stack(s)){
+    pop_stack(s);
   }
 }
 

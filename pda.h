@@ -2,6 +2,7 @@
 #define PDA_H_
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -17,7 +18,13 @@ typedef struct {
 } Transition;
 
 typedef struct {
-  Transition ** transitions;
+  Transition * tran;
+  size_t count;
+  size_t capacity;
+} Transition_Array;
+
+typedef struct {
+  Transition_Array *** transitions;
   bool * is_final_state;
 } Graph;
 
@@ -32,6 +39,37 @@ typedef struct {
   size_t capacity;
   size_t count;
 } Comp_Stack;
+
+typedef struct {
+  Stack * stack;
+  Graph states;
+  size_t num_of_states;
+  //  Node * history;
+} PDA;
+
+Transition_Array * new_transition_array(){
+  Transition_Array * nts = (Transition_Array*) malloc(sizeof(Transition_Array));
+  nts->capacity = 0;
+  nts->count = 0;
+  nts->tran = NULL;
+  return nts;
+}
+
+void push_transition_array(Transition_Array *ts, Transition t) {
+  if(ts->count >= ts->capacity){
+    ts->capacity += STACK_INIT_SIZE;
+    ts->tran = (Transition*)realloc(ts->tran, ts->capacity * sizeof(Transition));
+  }
+  ts->tran[ts->count++] = t;
+}
+
+void free_transition_array(Transition_Array* ts){
+  for(size_t i = 0; i < ts->count; ++i){
+    free_string(ts->tran[i].stack);
+  }
+  free(ts->tran);
+  free(ts);
+}
 
 Comp_Stack * new_computation_stack(){
   Comp_Stack * ncs = (Comp_Stack*) malloc(sizeof(Comp_Stack));
@@ -62,40 +100,6 @@ bool is_computation_stack_empty(Comp_Stack *cs) {
   return cs->count == 0;
 }
 
-/* typedef struct Node{ */
-/*   Computation c; */
-/*   Node ** sub_nodes; */
-/*   size_t num_of_nodes; */
-/*   size_t capacity; */
-/* } Node; */
-
-typedef struct {
-  Stack * stack;
-  Graph states;
-  size_t num_of_states;
-  //  Node * history;
-} PDA;
-
-/* Node *new_node() { */
-/*   Node * n = (Node*) malloc(sizeof(Node)); */
-/*   n->num_of_nodes = 0; */
-/*   n->sub_nodes = NULL; */
-/*   n->c = {0}; */
-/*   n->capacity = 0; */
-/*   return n; */
-/* } */
-
-/* void add_computation_to_node(Node* tree, Computation new_computation){ */
-/*   if(tree->num_of_nodes >= tree->capacity){ */
-/*     tree->capacity += NODE_SUBNODE_ARRAY_INIT_SIZE; */
-/*     tree->sub_nodes = (Node**) realloc(tree->sub_nodes, tree->capacity * sizeof(Node*)); */
-/*   } */
-/*   Node * n = new_node(); */
-/*   n->c = new_computation; */
-/*   tree->sub_nodes[tree->num_of_nodes++] = n; */
-/* } */
-
-
 PDA * new_pda(size_t number_of_states){
   size_t Q = number_of_states;
   PDA * pda = (PDA*)malloc(sizeof(*pda));
@@ -104,13 +108,13 @@ PDA * new_pda(size_t number_of_states){
   pda->stack = new_stack();
   push_stack(pda->stack, 'Z'); 
 
-  pda->states.transitions = (Transition**) malloc(Q*sizeof(Transition*));
+  pda->states.transitions = (Transition_Array***) malloc(Q*sizeof(Transition_Array**));
   pda->states.is_final_state = (bool*) malloc(Q*sizeof(bool));
   for(size_t i = 0; i < Q; ++i){
-    pda->states.transitions[i] = (Transition*) malloc(Q*sizeof(Transition));
+    pda->states.transitions[i] = (Transition_Array**) malloc(Q*sizeof(Transition_Array*));
     pda->states.is_final_state[i] = false;
     for(size_t j = 0; j < Q; ++j){
-      pda->states.transitions[i][j].stack = new_string();
+      pda->states.transitions[i][j] = new_transition_array();
     }
   }
   return pda;
@@ -119,31 +123,31 @@ PDA * new_pda(size_t number_of_states){
 void free_pda(PDA * pda){
   for(size_t i = 0; i < pda->num_of_states; ++i){
     for(size_t j = 0; j < pda->num_of_states; ++j){
-      free_string(pda->states.transitions[i][j].stack);
+      free_transition_array(pda->states.transitions[i][j]);
     }
     free(pda->states.transitions[i]);
   }
+  free(pda->states.is_final_state);
   free(pda->states.transitions);
   free_stack(pda->stack);
   free(pda);
 }
 
 bool is_word_in_lang(PDA * pda, char * word, size_t state, Comp_Stack * cs){
-  size_t value =
-    ((uint8_t)(word[0] == '\0') << 2) +
-    ((uint8_t)(pda->states.is_final_state[state]) << 1) + 
-    ((uint8_t)(is_empty_stack(pda->stack)) << 0);
 
-  // 111 (7) -> word is in language                                -> return true and save computation
-  // 110 (6) -> word empty but stack isn't empty                   -> false and don't save computation
-  // 101 (5) -> word n stack empty but didn't reach final state    -> false and don't save computation
-  // 100 (4) -> word empty but stack not and isn't final state     -> false and don't save computation
-  // 011 (3) -> word isn't empty                                   -> continue recursion
-  // 010 (2) -> final state but word and stack aren't empty        -> continue recursion
-  // 001 (1) -> stack is empty but word isn't and is final state   -> continue recursion
-  
-  switch(value){
-  case 7:{
+  //word is in language                                -> return true and save computation
+  //word empty but stack isn't empty                   -> false and don't save computation
+  //word n stack empty but didn't reach final state    -> false and don't save computation
+  //word empty but stack not and isn't final state     -> false and don't save computation
+  //word isn't empty                                   -> continue recursion
+  //final state but word and stack aren't empty        -> continue recursion
+  //stack is empty but word isn't and is final state   -> continue recursion
+  //nothing is done                                    -> continue recursion
+  if(
+     word[0]=='\0' &&
+     pda->states.is_final_state[state] &&
+     is_empty_stack(pda->stack)
+      ){
     Computation c;
     c.current_word = new_string();
     c.current_stack = new_string();
@@ -153,29 +157,32 @@ bool is_word_in_lang(PDA * pda, char * word, size_t state, Comp_Stack * cs){
     push_computation_stack(cs, c);
     return true;
   }
-    //INTENTIONAL FALLTHROUGH
-  case 6:
-  case 5:
-  case 4:{
-    return false;
-  }
-  case 3:
-  case 2:
-  case 1:
-  default:
-    break;
-  }
 
   bool is_it = false;
   for(size_t i = 0; i < pda->num_of_states; ++i){
-    char to_consume = pda->states.transitions[state][i].consume;
-    char to_unstack = pda->states.transitions[state][i].unstack;
-    char current_stack_top = get_top_from_stack(pda->stack);
-    if(word[0] == to_consume && current_stack_top == to_unstack){
-      pop_stack(pda->stack);
-      push_string_to_stack(pda->stack, pda->states.transitions[i]->stack);
-      is_it = is_it || is_word_in_lang(pda, word + 1, i, cs);
-      if(is_it) break;
+    Transition_Array * ta = pda->states.transitions[state][i];
+    for(size_t j = 0; j < ta->count; ++j){
+      Transition t = ta->tran[j];
+      char to_consume = t.consume;
+      char to_unstack = t.unstack;
+      const String * to_stack = t.stack;
+      char current_stack_top = get_top_from_stack(pda->stack);
+      if(to_consume == '&' && to_unstack == '&'){
+	push_string_to_stack(pda->stack, to_stack);
+	is_it = is_it || is_word_in_lang(pda, word, i, cs); //dont add 1 to word
+      } else if(to_consume == '&' && to_unstack == current_stack_top){
+	pop_stack(pda->stack);
+	push_string_to_stack(pda->stack, to_stack);
+	is_it = is_it || is_word_in_lang(pda, word, i, cs); // dont add 1 to word
+      } else if(to_consume == word[0] && to_unstack == '&'){
+	push_string_to_stack(pda->stack, to_stack);
+	is_it = is_it || is_word_in_lang(pda, word + 1, i, cs);
+      } else if(to_consume == word[0] && current_stack_top == to_unstack){
+	pop_stack(pda->stack);
+	push_string_to_stack(pda->stack, to_stack);
+	is_it = is_it || is_word_in_lang(pda, word + 1, i, cs);
+      }
+      if(is_it) return true;
     }
   }
   return is_it;

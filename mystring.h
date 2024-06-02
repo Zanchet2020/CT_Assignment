@@ -26,8 +26,8 @@ void append_to_string(String* str, char * txt){
       str->capacity += STRING_INIT_SIZE;
       str->text = (char*)realloc(str->text, str->capacity * sizeof(char));
     }
-    str->text[i + str->count] = txt[i];
-    str->text[++str->count] = '\0';
+    str->text[str->count++] = txt[i];
+    str->text[str->count] = '\0';
   }
 }
 
