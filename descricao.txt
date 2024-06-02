@@ -1,0 +1,10 @@
+Trabalho por: Lucas Samuel Zanchet
+
+A principio nao ha bugs apos realizar os testes do pdf.
+Nao usei nenhum codigo como referencia. Decidi usar um grafo definido por um vetor, para cada posicao onde ha uma transicao, ha um vetor dinamico que armazena as transicoes possiveis.
+
+Quis implementar todos os vetores dinamicos para aumentar o desafio e praticar o gerenciamento de memoria. Porem os buffers de entrada sao estaticos
+
+O codigo poderia sofrer uma refatoracao, porem nao tive tempo para isso.
+
+Escolhi apresentar as computacoes para a pontuacao extra.

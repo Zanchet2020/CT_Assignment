@@ -11,6 +11,7 @@ int main(){
   scanf("%zu %zu", &Q, &T);
   PDA * lang = new_pda(Q);
   
+  // reading transitions
   for(size_t i = 0; i < T; ++i){
     size_t from_state, to_state;
     char consume, unstack;
@@ -27,6 +28,7 @@ int main(){
     push_transition_array(lang->states.transitions[from_state][to_state], t);
   }
 
+  // reading final states
   size_t num_of_final_states = 0;
   scanf("%zu", &num_of_final_states);
   for(size_t i = 0; i < num_of_final_states; ++i){
@@ -35,6 +37,7 @@ int main(){
     lang->states.is_final_state[index] = true;
   }
 
+  // checking words
   Comp_Stack * cs = new_computation_stack();
   while(true){
     char input_buff[1000];
@@ -44,7 +47,9 @@ int main(){
       printf("%s: sim\n", input_buff);
       for(size_t i = 0; !is_computation_stack_empty(cs); ++i){
 	Computation c = pop_computation_stack(cs);
-        printf("(q%zu, %s, %s) |-\n", c.state, c.current_word->text, c.current_stack->text);
+        printf("(q%zu, %s, %s)", c.state, c.current_word->text, c.current_stack->text);
+	if(cs->count > 0) printf("|-\n");
+	else printf(".\n");
 	free_string(c.current_word);
 	free_string(c.current_stack);
       }
