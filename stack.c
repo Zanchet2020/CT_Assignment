@@ -36,7 +36,7 @@ void free_stack(Stack * s){
 
 String *get_string_from_stack(const Stack *s) {
   String * str = new_string();
-  for(size_t i =0; i < s->count; ++i){
+  for(int i =s->count - 1; i > 0; --i){
     char c[2];
     c[0] = s->data[i];
     c[1] = '\0';

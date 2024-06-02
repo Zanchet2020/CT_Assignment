@@ -105,17 +105,23 @@ bool is_word_in_lang(PDA * pda, char * word, size_t state, Comp_Stack * cs){
     Computation c;
     c.current_word = new_string();
     c.state = state;
-    if(word[0] == '&') append_to_string(c.current_word, (char*)"&");
+    c.current_stack = new_string();
+    if(word[0] == '\0') append_to_string(c.current_word, (char*)"&");
     else append_to_string(c.current_word, word);
-    c.current_stack = get_string_from_stack(pda->stack);
+    append_to_string(c.current_stack, (char*)"Z");
+    String * temp = get_string_from_stack(pda->stack);
+    append_to_string(c.current_stack, temp->text);
+    free_string(temp);
     push_computation_stack(cs, c);
     return true;
   }
 
   bool is_it = false;
+  String * stack_image = get_string_from_stack(pda->stack);
   for(size_t i = 0; i < pda->num_of_states; ++i){
     Transition_Array * ta = pda->states.transitions[state][i];
     for(size_t j = 0; j < ta->count; ++j){
+      
       Transition t = ta->tran[j];
       char to_consume = t.consume;
       char to_unstack = t.unstack;
@@ -139,16 +145,24 @@ bool is_word_in_lang(PDA * pda, char * word, size_t state, Comp_Stack * cs){
       if (is_it) {
         Computation c;
         c.current_word = new_string();
+	c.current_stack = new_string();
         c.state = state;
-        if (word[0] == '&')
+        if (word[0] == '\0')
           append_to_string(c.current_word, (char *)"&");
         else
           append_to_string(c.current_word, word);
-        c.current_stack = get_string_from_stack(pda->stack);
+	append_to_string(c.current_stack, (char*)"Z");
+	append_to_string(c.current_stack, stack_image->text);
+	//        c.current_stack = get_string_from_stack(stack_image);
         push_computation_stack(cs, c);
-        return true;
+	free_string(stack_image);
+	return true;
       }
+      //      free_string(stack_image);
     }
   }
+  clear_stack(pda->stack);
+  push_string_to_stack(pda->stack, stack_image);
+  free_string(stack_image);
   return is_it;
 }
