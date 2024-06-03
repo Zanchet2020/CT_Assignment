@@ -1,6 +1,8 @@
 #include "pda.h"
 #include "stack.h"
 
+#include <stdio.h>
+
 Transition_Array * new_transition_array(){
   Transition_Array * nts = (Transition_Array*) malloc(sizeof(Transition_Array));
   nts->capacity = 0;
@@ -87,7 +89,7 @@ void free_pda(PDA * pda){
   free(pda);
 }
 
-bool is_word_in_lang(PDA * pda, char * word, size_t state, Comp_Stack * cs){
+bool is_word_in_lang(PDA * pda, char * word, size_t state, Comp_Stack * cs, int level){
 
   //word is in language                                -> return true and save computation
   //word empty but stack isn't empty                   -> false and don't save computation
@@ -117,11 +119,11 @@ bool is_word_in_lang(PDA * pda, char * word, size_t state, Comp_Stack * cs){
   }
 
   bool is_it = false;
-  String * stack_image = get_string_from_stack(pda->stack);
   for(size_t i = 0; i < pda->num_of_states; ++i){
+    //    printf("stack_image: %s  state: %zu  word: %s  level: %d\n", stack_image->text, state, word, level);
     Transition_Array * ta = pda->states.transitions[state][i];
     for(size_t j = 0; j < ta->count; ++j){
-      
+      String * stack_image = get_string_from_stack(pda->stack);
       Transition t = ta->tran[j];
       char to_consume = t.consume;
       char to_unstack = t.unstack;
@@ -129,18 +131,18 @@ bool is_word_in_lang(PDA * pda, char * word, size_t state, Comp_Stack * cs){
       char current_stack_top = get_top_from_stack(pda->stack);
       if(to_consume == '&' && to_unstack == '&'){
 	push_string_to_stack(pda->stack, to_stack);
-	is_it = is_it || is_word_in_lang(pda, word, i, cs); //dont add 1 to word
+	is_it = is_it || is_word_in_lang(pda, word, i, cs, level + 1); //dont add 1 to word
       } else if(to_consume == '&' && to_unstack == current_stack_top){
 	pop_stack(pda->stack);
 	push_string_to_stack(pda->stack, to_stack);
-	is_it = is_it || is_word_in_lang(pda, word, i, cs); // dont add 1 to word
+	is_it = is_it || is_word_in_lang(pda, word, i, cs, level + 1); // dont add 1 to word
       } else if(to_consume == word[0] && to_unstack == '&'){
 	push_string_to_stack(pda->stack, to_stack);
-	is_it = is_it || is_word_in_lang(pda, word + 1, i, cs);
+	is_it = is_it || is_word_in_lang(pda, word + 1, i, cs, level + 1);
       } else if(to_consume == word[0] && current_stack_top == to_unstack){
 	pop_stack(pda->stack);
 	push_string_to_stack(pda->stack, to_stack);
-	is_it = is_it || is_word_in_lang(pda, word + 1, i, cs);
+	is_it = is_it || is_word_in_lang(pda, word + 1, i, cs, level + 1);
       }
       if (is_it) {
         Computation c;
@@ -159,10 +161,10 @@ bool is_word_in_lang(PDA * pda, char * word, size_t state, Comp_Stack * cs){
 	return true;
       }
       //      free_string(stack_image);
+      clear_stack(pda->stack);
+      push_string_to_stack(pda->stack, stack_image);
+      free_string(stack_image);
     }
   }
-  clear_stack(pda->stack);
-  push_string_to_stack(pda->stack, stack_image);
-  free_string(stack_image);
   return is_it;
 }

@@ -68,7 +68,7 @@ PDA * new_pda(size_t);
 
 void free_pda(PDA *);
 
-bool is_word_in_lang(PDA *, char *, size_t, Comp_Stack *);
+bool is_word_in_lang(PDA *, char *, size_t, Comp_Stack *, int);
 
 
 

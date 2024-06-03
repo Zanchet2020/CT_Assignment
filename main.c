@@ -43,7 +43,7 @@ int main(){
     char input_buff[1000];
     scanf("%s", input_buff);
     if(input_buff[0] == '*') break;
-    if(is_word_in_lang(lang, input_buff, 0, cs)){
+    if(is_word_in_lang(lang, input_buff, 0, cs, 0)){
       printf("%s: sim\n", input_buff);
       for(size_t i = 0; !is_computation_stack_empty(cs); ++i){
 	Computation c = pop_computation_stack(cs);

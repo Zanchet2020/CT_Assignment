@@ -8,3 +8,5 @@ Quis implementar todos os vetores dinamicos para aumentar o desafio e praticar o
 O codigo poderia sofrer uma refatoracao, porem nao tive tempo para isso.
 
 Escolhi apresentar as computacoes para a pontuacao extra.
+
+Ha muitas coisas ineficientes no codigo, alocacoes dinamicas desnecessarias principalmente. 
