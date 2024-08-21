@@ -89,7 +89,7 @@ void free_pda(PDA * pda){
   free(pda);
 }
 
-bool is_word_in_lang(PDA * pda, char * word, size_t state, Comp_Stack * cs, int level){
+bool is_word_in_lang(PDA * pda, char * word, size_t state, Comp_Stack * cs){
 
   //word is in language                                -> return true and save computation
   //word empty but stack isn't empty                   -> false and don't save computation
@@ -99,17 +99,23 @@ bool is_word_in_lang(PDA * pda, char * word, size_t state, Comp_Stack * cs, int 
   //final state but word and stack aren't empty        -> continue recursion
   //stack is empty but word isn't and is final state   -> continue recursion
   //nothing is done                                    -> continue recursion
+  
   if(
      word[0]=='\0' &&
      pda->states.is_final_state[state] &&
      is_empty_stack(pda->stack)
       ){
+
+    // criando nova computacao
     Computation c;
     c.current_word = new_string();
     c.state = state;
     c.current_stack = new_string();
-    if(word[0] == '\0') append_to_string(c.current_word, (char*)"&");
-    else append_to_string(c.current_word, word);
+    // salvando caractere & quando a palavra eh vazia
+    if (word[0] == '\0')
+      append_to_string(c.current_word, (char *)"&");
+    else
+      append_to_string(c.current_word, word);
     append_to_string(c.current_stack, (char*)"Z");
     String * temp = get_string_from_stack(pda->stack);
     append_to_string(c.current_stack, temp->text);
@@ -118,41 +124,51 @@ bool is_word_in_lang(PDA * pda, char * word, size_t state, Comp_Stack * cs, int 
     return true;
   }
 
+  
   bool is_it = false;
   for(size_t i = 0; i < pda->num_of_states; ++i){
-    //    printf("stack_image: %s  state: %zu  word: %s  level: %d\n", stack_image->text, state, word, level);
+
+    // array como alias para diminuir verbosidade
     Transition_Array * ta = pda->states.transitions[state][i];
     for(size_t j = 0; j < ta->count; ++j){
+      // imagem da stack: ao retornar de uma recursao pelo caminho errado serve para retomar de onde estava
       String * stack_image = get_string_from_stack(pda->stack);
+
+      // cacheando os requisitos da transicao
       Transition t = ta->tran[j];
       char to_consume = t.consume;
       char to_unstack = t.unstack;
       const String * to_stack = t.stack;
       char current_stack_top = get_top_from_stack(pda->stack);
+
+      // considerando casos de palavra vazia
       if(to_consume == '&' && to_unstack == '&'){
 	push_string_to_stack(pda->stack, to_stack);
-	is_it = is_it || is_word_in_lang(pda, word, i, cs, level + 1); //dont add 1 to word
+	is_it = is_it || is_word_in_lang(pda, word, i, cs); //dont add 1 to word
       } else if(to_consume == '&' && to_unstack == current_stack_top){
 	pop_stack(pda->stack);
 	push_string_to_stack(pda->stack, to_stack);
-	is_it = is_it || is_word_in_lang(pda, word, i, cs, level + 1); // dont add 1 to word
+	is_it = is_it || is_word_in_lang(pda, word, i, cs); // dont add 1 to word
       } else if(to_consume == word[0] && to_unstack == '&'){
 	push_string_to_stack(pda->stack, to_stack);
-	is_it = is_it || is_word_in_lang(pda, word + 1, i, cs, level + 1);
+	is_it = is_it || is_word_in_lang(pda, word + 1, i, cs);
       } else if(to_consume == word[0] && current_stack_top == to_unstack){
 	pop_stack(pda->stack);
 	push_string_to_stack(pda->stack, to_stack);
-	is_it = is_it || is_word_in_lang(pda, word + 1, i, cs, level + 1);
+	is_it = is_it || is_word_in_lang(pda, word + 1, i, cs);
       }
       if (is_it) {
+	// salvando computacao na stack
         Computation c;
         c.current_word = new_string();
 	c.current_stack = new_string();
         c.state = state;
+	// salvando caractere & quando a palavra eh vazia
         if (word[0] == '\0')
           append_to_string(c.current_word, (char *)"&");
         else
           append_to_string(c.current_word, word);
+	// get_string_from_stack() retorna a string sem o caractere Z
 	append_to_string(c.current_stack, (char*)"Z");
 	append_to_string(c.current_stack, stack_image->text);
 	//        c.current_stack = get_string_from_stack(stack_image);

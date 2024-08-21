@@ -34,6 +34,7 @@ void free_stack(Stack * s){
   free(s);
 }
 
+// retorna string da pilha porem sem a letra Z
 String *get_string_from_stack(const Stack *s) {
   String * str = new_string();
   for(int i =s->count - 1; i > 0; --i){

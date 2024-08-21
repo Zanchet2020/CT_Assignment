@@ -48,6 +48,7 @@ typedef struct {
 } PDA;
 
 
+// vetor de transicoes
 Transition_Array * new_transition_array();
 
 void push_transition_array(Transition_Array *, Transition );
@@ -68,7 +69,7 @@ PDA * new_pda(size_t);
 
 void free_pda(PDA *);
 
-bool is_word_in_lang(PDA *, char *, size_t, Comp_Stack *, int);
+bool is_word_in_lang(PDA *, char *, size_t, Comp_Stack *);
 
 
 
